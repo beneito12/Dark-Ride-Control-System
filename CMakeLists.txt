@@ -5,4 +5,9 @@ project(VirtualAttractionControl)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CSS_STANDARD_REQUIRED ON)
 
-add_executable(attraction main.cpp)
+add_executable(attraction 
+main.cpp
+src/Block.cpp
+)
+
+target_include_directories(attraction PRIVATE include)
