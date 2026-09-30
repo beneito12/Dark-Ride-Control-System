@@ -14,5 +14,15 @@ int main() {
 
     std::cout << "Block " << block0.getId() << " occupied? " << 
     (block0.isOccupied() ? "Yes" : "No") << std::endl;
+
+    bool secondGranted = block0.requestEntry(2);
+    std::cout << "Vehicle 2 entry granted? " << (secondGranted ? "Yes" : "No") << std::endl;
+
+    block0.release();
+    std::cout << "Block released.\n";
+    
+    bool SecondTry = block0.requestEntry(2);
+    std::cout << "Vehicle 2 entry granted? " << (SecondTry ? "Yes" : "No") << std::endl;
+
     return 0;
 }
