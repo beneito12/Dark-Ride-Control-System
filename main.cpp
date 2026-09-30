@@ -1,28 +1,42 @@
 #include <iostream>
 #include "Block.h"
+#include "VehicleController.h"
+
+const char* vehicleStatetoString(VehicleState state) {
+    switch (state) {
+        case VehicleState::STOPPED:
+            return "STOPPED";
+        case VehicleState::MOVING:
+            return "MOVING";
+        case VehicleState::READY_FOR_DISPATCH:
+            return "READY_FOR_DISPATCH";
+        case VehicleState::FAULTED:
+        return "FAULTED";
+        case VehicleState::EMERGENCY_STOP:
+            return "EMERGENCY_STOP";
+        default:
+            return "UNKNOWN";
+    }
+}
 
 int main() {
     std::cout << "Virtual Attraction Control System\n\n";
 
     Block block0(0);
 
-    std::cout << "Block " << block0.getId() << " occupied? " << 
-    (block0.isOccupied() ? "Yes" : "No") << std::endl;
+    VehicleController vehicle1(1);
 
-    bool granted = block0.requestEntry(1);
-    std::cout << "Vehicle 1 entry granted? " << (granted ? "Yes" : "No") << std::endl;
+    bool granted = block0.requestEntry(vehicle1.getVehicleId());
 
-    std::cout << "Block " << block0.getId() << " occupied? " << 
-    (block0.isOccupied() ? "Yes" : "No") << std::endl;
+    if (granted) {
+        vehicle1.setCurrentBlock(block0.getId());
+        vehicle1.setState(VehicleState::MOVING);
+    }
 
-    bool secondGranted = block0.requestEntry(2);
-    std::cout << "Vehicle 2 entry granted? " << (secondGranted ? "Yes" : "No") << std::endl;
+    std::cout << "Vehicle " << vehicle1.getVehicleId() << " entry request: " << (granted ? "Granted" : "Denied") << std::endl;
 
-    block0.release();
-    std::cout << "Block released.\n";
-    
-    bool SecondTry = block0.requestEntry(2);
-    std::cout << "Vehicle 2 entry granted? " << (SecondTry ? "Yes" : "No") << std::endl;
+    std::cout << "Vehicle " << vehicle1.getVehicleId() << " current block: " << vehicle1.getCurrentBlock() << std::endl;
+    std::cout << "Vehicle " << vehicle1.getVehicleId() << " state: " << vehicleStatetoString(vehicle1.getState()) << std::endl;
 
     return 0;
 }

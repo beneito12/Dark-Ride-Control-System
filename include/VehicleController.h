@@ -8,7 +8,7 @@ enum class VehicleState {
     EMERGENCY_STOP
 };
 
-class VehicleContoller
+class VehicleController
 {
     private: 
     int VehicleId;
@@ -16,7 +16,7 @@ class VehicleContoller
     VehicleState state;
 
     public:
-    VehicleContoller(int id);
+    VehicleController(int id);
     int getVehicleId() const;
     int getCurrentBlock()const;
     VehicleState getState()const;
