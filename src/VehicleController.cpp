@@ -4,6 +4,7 @@ VehicleController::VehicleController(int id){
     VehicleId = id;
     currentBlock = -1;
     state = VehicleState::STOPPED;
+    ticksInCurrentBlock = 0;
 }
 
 int VehicleController::getVehicleId() const {
@@ -20,8 +21,17 @@ VehicleState VehicleController::getState() const {
 
 void VehicleController::setCurrentBlock(int blockId) {
     currentBlock = blockId;
+    ticksInCurrentBlock = 0;
 }
 
 void VehicleController::setState(VehicleState newState) {
     state = newState;
+}
+
+int VehicleController::getTicksInCurrentBlock() const {
+    return ticksInCurrentBlock;
+}
+
+void VehicleController::incrementBlockTimer() {
+    ticksInCurrentBlock++;
 }

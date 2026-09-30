@@ -1,9 +1,15 @@
 #include "Block.h"
 
-Block::Block(int blockId)
+Block::Block(int blockId, int dwellTicks)
 {
     id = blockId;
+    requiredTicks = dwellTicks;
     occupyingvehicle = -1;
+}
+
+int Block::getRequiredTicks() const
+{
+    return requiredTicks;
 }
 
 bool Block::isOccupied() const

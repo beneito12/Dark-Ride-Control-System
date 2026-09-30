@@ -5,9 +5,11 @@ class Block
     private:
     int id;
     int occupyingvehicle;
+    int requiredTicks;
 
     public:
-    Block(int blockId);
+    Block(int blockId, int dwellTicks);
+    int getRequiredTicks() const;
 
     bool isOccupied() const;
     bool requestEntry(int vehicleId);

@@ -10,11 +10,15 @@ public:
    std::vector<Block> blocks;
    
    std::vector<VehicleController> vehicles;
+   void completeRideCycle(int vehicleIndex);
+
+  
 
    public:
     RideController();
 
     int getVehicleId(int vehicleIndex) const;
+    void update();
 
     bool dispatchVehicle(int vehicleIndex);
     bool moveVehicleToNextBlock(int vehicleIndex);
