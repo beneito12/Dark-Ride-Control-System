@@ -2,13 +2,12 @@
 
 #include "Block.h"
 #include "VehicleController.h"
+#include <vector>
 
 class RideController {
 public:
    private:
-   Block block0;
-   Block block1;
-   Block block2;
+   std::vector<Block> blocks;
    
    VehicleController vehicle1;
 
@@ -17,6 +16,6 @@ public:
 
     bool dispatchVehicle();
     bool moveVehicleToNextBlock();
-    
+
     void printStatus() const;
 };
