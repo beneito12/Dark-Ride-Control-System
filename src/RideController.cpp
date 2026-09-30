@@ -1,52 +1,62 @@
 #include "RideController.h"
 #include <iostream>
 
-RideController::RideController() : vehicle1(1) {\
+RideController::RideController() {
     blocks.emplace_back(0);
     blocks.emplace_back(1);
     blocks.emplace_back(2);
+    vehicles.emplace_back(1);
+    vehicles.emplace_back(2);
 }
 
-bool RideController::dispatchVehicle() {
-    bool granted = blocks[0].requestEntry(vehicle1.getVehicleId());
+bool RideController::dispatchVehicle(int vehicleIndex) {
+    VehicleController& vehicle = vehicles[vehicleIndex];
+
+    bool granted = blocks[0].requestEntry(vehicle.getVehicleId());
 
     if (granted) {
-        vehicle1.setCurrentBlock(blocks[0].getId());
-        vehicle1.setState(VehicleState::MOVING);
+        vehicle.setCurrentBlock(blocks[0].getId());
+        vehicle.setState(VehicleState::MOVING);
     }
     return granted;
 }
 
-bool RideController::moveVehicleToNextBlock() {
-    int currentBlock = vehicle1.getCurrentBlock();
+bool RideController::moveVehicleToNextBlock(int vehicleIndex) {
+    VehicleController& vehicle = vehicles[vehicleIndex];
+
+    int currentBlock = vehicle.getCurrentBlock();
     int nextBlock = currentBlock + 1;
     
     if (currentBlock < 0) return false;
 
     if (nextBlock >= static_cast<int>(blocks.size())) return false;
 
-    bool granted = blocks[nextBlock].requestEntry(vehicle1.getVehicleId());
+    bool granted = blocks[nextBlock].requestEntry(vehicle.getVehicleId());
     if (granted) {
         blocks[currentBlock].release();
-        vehicle1.setCurrentBlock(nextBlock);
+        vehicle.setCurrentBlock(nextBlock);
     }
     return granted;
 }
 
 void RideController::printStatus() const {
     std::cout << "Ride Status: " << std::endl;
-    std::cout << "Vehicle " << vehicle1.getVehicleId() << std::endl << "Current Block: " << vehicle1.getCurrentBlock() << std::endl;
 
-    std::cout << "Block 0: " << (blocks[0].isOccupied() ? "OCCUPIED " : "CLEAR") << std::endl;
-    if (blocks[0].isOccupied()) {
-        std::cout << " by vehicle " << blocks[0].getOccupyingVehicle() << std::endl;
+    for (const VehicleController& vehicle : vehicles) {
+        std::cout << "Vehicle " << vehicle.getVehicleId() << std::endl << "Current Block: " << vehicle.getCurrentBlock() << std::endl;
     }
-    std::cout << "Block 1: " << (blocks[1].isOccupied() ? "OCCUPIED" : "CLEAR") << std::endl;
-    if (blocks[1].isOccupied()) {
-        std::cout << " by vehicle " << blocks[1].getOccupyingVehicle() << std::endl;
+
+    for (const Block& block : blocks) {
+        std::cout << "Block " << block.getId() << ": "; 
+        if (block.isOccupied()) {
+            std::cout << "OCCUPIED" << std::endl;
+            std::cout << " by vehicle " << block.getOccupyingVehicle() << std::endl;
+        } else {
+            std::cout << "CLEAR" << std::endl;
+        }
     }
-    std::cout << "Block 2: " << (blocks[2].isOccupied() ? "OCCUPIED" : "CLEAR") << std::endl;
-    if (blocks[2].isOccupied()) {
-        std::cout << " by vehicle " << blocks[2].getOccupyingVehicle() << std::endl;
-    }
+}
+
+int RideController::getVehicleId(int vehicleIndex) const {
+    return vehicles[vehicleIndex].getVehicleId();
 }

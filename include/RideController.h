@@ -9,13 +9,15 @@ public:
    private:
    std::vector<Block> blocks;
    
-   VehicleController vehicle1;
+   std::vector<VehicleController> vehicles;
 
    public:
     RideController();
 
-    bool dispatchVehicle();
-    bool moveVehicleToNextBlock();
+    int getVehicleId(int vehicleIndex) const;
+
+    bool dispatchVehicle(int vehicleIndex);
+    bool moveVehicleToNextBlock(int vehicleIndex);
 
     void printStatus() const;
 };
