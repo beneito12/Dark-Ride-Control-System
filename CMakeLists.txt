@@ -9,6 +9,7 @@ add_executable(attraction
 main.cpp
 src/Block.cpp
 src/VehicleController.cpp
+src/RideController.cpp
 )
 
 target_include_directories(attraction PRIVATE include)
