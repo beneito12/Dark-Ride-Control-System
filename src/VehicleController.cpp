@@ -3,7 +3,7 @@
 VehicleController::VehicleController(int id){
     VehicleId = id;
     currentBlock = -1;
-    state = VehicleState::STOPPED;
+    state = VehicleState::WAITING_FOR_DISPATCH;
     ticksInCurrentBlock = 0;
 }
 

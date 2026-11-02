@@ -5,7 +5,9 @@ enum class VehicleState {
     READY_FOR_DISPATCH,
     MOVING,
     FAULTED,
-    EMERGENCY_STOP
+    EMERGENCY_STOP,
+    WAITING_FOR_DISPATCH,
+    COMPLETED_CYCLE
 };
 
 class VehicleController

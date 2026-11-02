@@ -2,6 +2,13 @@
 #include <iostream>
 
 void RideController::update() {
+
+    for (VehicleController& vehicle : vehicles) {
+        if (vehicle.getState() == VehicleState::COMPLETED_CYCLE) {
+            vehicle.setState(VehicleState::WAITING_FOR_DISPATCH);
+        }
+    }
+    
     for (int i = 0; i < static_cast<int>(vehicles.size()); i++) {
         int currentBlock = vehicles[i].getCurrentBlock();
         if (currentBlock >= 0) {
@@ -17,7 +24,7 @@ void RideController::update() {
     }
 
     for (int i = 0; i < static_cast<int>(vehicles.size()); i++) {
-        if (vehicles[i].getCurrentBlock() == -1) {
+        if (vehicles[i].getCurrentBlock() == -1 && vehicles[i].getState() == VehicleState::WAITING_FOR_DISPATCH) {
             dispatchVehicle(i);
         }
     }
@@ -57,8 +64,10 @@ bool RideController::moveVehicleToNextBlock(int vehicleIndex) {
     
     if (currentBlock < 0) return false;
 
-    if (nextBlock >= static_cast<int>(blocks.size())) return false;
-
+    if (nextBlock >= static_cast<int>(blocks.size())) {
+        completeRideCycle(vehicleIndex);
+        return true;
+    }
     bool granted = blocks[nextBlock].requestEntry(vehicle.getVehicleId());
     if (granted) {
         blocks[currentBlock].release();
@@ -89,4 +98,14 @@ void RideController::printStatus() const {
 
 int RideController::getVehicleId(int vehicleIndex) const {
     return vehicles[vehicleIndex].getVehicleId();
+}
+
+void RideController::completeRideCycle(int vehicleIndex) {
+    VehicleController& vehicle = vehicles[vehicleIndex];
+
+    int currentBlock = vehicle.getCurrentBlock();
+    if (currentBlock >= 0) blocks[currentBlock].release();
+
+    vehicle.setCurrentBlock(-1);
+    vehicle.setState(VehicleState::COMPLETED_CYCLE);
 }
