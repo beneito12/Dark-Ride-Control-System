@@ -201,6 +201,30 @@ src/RideController.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/attraction.dir/build.make CMakeFiles/attraction.dir/src/RideController.cpp.s
 .PHONY : src/RideController.cpp.s
 
+src/StationController.o: src/StationController.cpp.o
+.PHONY : src/StationController.o
+
+# target to build an object file
+src/StationController.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/attraction.dir/build.make CMakeFiles/attraction.dir/src/StationController.cpp.o
+.PHONY : src/StationController.cpp.o
+
+src/StationController.i: src/StationController.cpp.i
+.PHONY : src/StationController.i
+
+# target to preprocess a source file
+src/StationController.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/attraction.dir/build.make CMakeFiles/attraction.dir/src/StationController.cpp.i
+.PHONY : src/StationController.cpp.i
+
+src/StationController.s: src/StationController.cpp.s
+.PHONY : src/StationController.s
+
+# target to generate assembly for a file
+src/StationController.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/attraction.dir/build.make CMakeFiles/attraction.dir/src/StationController.cpp.s
+.PHONY : src/StationController.cpp.s
+
 src/VehicleController.o: src/VehicleController.cpp.o
 .PHONY : src/VehicleController.o
 
@@ -243,6 +267,9 @@ help:
 	@echo "... src/RideController.o"
 	@echo "... src/RideController.i"
 	@echo "... src/RideController.s"
+	@echo "... src/StationController.o"
+	@echo "... src/StationController.i"
+	@echo "... src/StationController.s"
 	@echo "... src/VehicleController.o"
 	@echo "... src/VehicleController.i"
 	@echo "... src/VehicleController.s"

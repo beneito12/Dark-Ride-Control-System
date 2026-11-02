@@ -85,12 +85,12 @@ clean: CMakeFiles/attraction.dir/clean
 CMakeFiles/attraction.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/attraction.dir/build.make CMakeFiles/attraction.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/attraction.dir/build.make CMakeFiles/attraction.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/benny/projects/VirtualAttractionControl/CMakeFiles --progress-num=1,2,3,4,5 "Built target attraction"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/benny/projects/VirtualAttractionControl/CMakeFiles --progress-num=1,2,3,4,5,6 "Built target attraction"
 .PHONY : CMakeFiles/attraction.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/attraction.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/benny/projects/VirtualAttractionControl/CMakeFiles 5
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/benny/projects/VirtualAttractionControl/CMakeFiles 6
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/attraction.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/benny/projects/VirtualAttractionControl/CMakeFiles 0
 .PHONY : CMakeFiles/attraction.dir/rule
@@ -102,7 +102,7 @@ attraction: CMakeFiles/attraction.dir/rule
 # codegen rule for target.
 CMakeFiles/attraction.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/attraction.dir/build.make CMakeFiles/attraction.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/benny/projects/VirtualAttractionControl/CMakeFiles --progress-num=1,2,3,4,5 "Finished codegen for target attraction"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/benny/projects/VirtualAttractionControl/CMakeFiles --progress-num=1,2,3,4,5,6 "Finished codegen for target attraction"
 .PHONY : CMakeFiles/attraction.dir/codegen
 
 # clean rule for target.

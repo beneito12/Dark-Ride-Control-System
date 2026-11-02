@@ -6,6 +6,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/attraction.dir/src/Block.cpp.o.d"
   "CMakeFiles/attraction.dir/src/RideController.cpp.o"
   "CMakeFiles/attraction.dir/src/RideController.cpp.o.d"
+  "CMakeFiles/attraction.dir/src/StationController.cpp.o"
+  "CMakeFiles/attraction.dir/src/StationController.cpp.o.d"
   "CMakeFiles/attraction.dir/src/VehicleController.cpp.o"
   "CMakeFiles/attraction.dir/src/VehicleController.cpp.o.d"
   "attraction"

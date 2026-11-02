@@ -11,6 +11,7 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/benny/projects/VirtualAttractionControl/main.cpp" "CMakeFiles/attraction.dir/main.cpp.o" "gcc" "CMakeFiles/attraction.dir/main.cpp.o.d"
   "/home/benny/projects/VirtualAttractionControl/src/Block.cpp" "CMakeFiles/attraction.dir/src/Block.cpp.o" "gcc" "CMakeFiles/attraction.dir/src/Block.cpp.o.d"
   "/home/benny/projects/VirtualAttractionControl/src/RideController.cpp" "CMakeFiles/attraction.dir/src/RideController.cpp.o" "gcc" "CMakeFiles/attraction.dir/src/RideController.cpp.o.d"
+  "/home/benny/projects/VirtualAttractionControl/src/StationController.cpp" "CMakeFiles/attraction.dir/src/StationController.cpp.o" "gcc" "CMakeFiles/attraction.dir/src/StationController.cpp.o.d"
   "/home/benny/projects/VirtualAttractionControl/src/VehicleController.cpp" "CMakeFiles/attraction.dir/src/VehicleController.cpp.o" "gcc" "CMakeFiles/attraction.dir/src/VehicleController.cpp.o.d"
   "" "attraction" "gcc" "CMakeFiles/attraction.dir/link.d"
   )

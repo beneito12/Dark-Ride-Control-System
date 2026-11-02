@@ -3,6 +3,7 @@
 #include "Block.h"
 #include "VehicleController.h"
 #include <vector>
+#include "StationController.h"
 
 class RideController {
 public:
@@ -11,6 +12,8 @@ public:
    
    std::vector<VehicleController> vehicles;
    void completeRideCycle(int vehicleIndex);
+
+   StationController station;
 
   
 
@@ -24,4 +27,8 @@ public:
     bool moveVehicleToNextBlock(int vehicleIndex);
 
     void printStatus() const;
+
+    void setStationGateClosed(bool closed);
+    void setStationRestraintsLocked(bool locked);
+    void setStationEmergencyStopActive(bool active);
 };

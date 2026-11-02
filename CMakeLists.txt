@@ -10,6 +10,7 @@ main.cpp
 src/Block.cpp
 src/VehicleController.cpp
 src/RideController.cpp
+src/StationController.cpp
 )
 
 target_include_directories(attraction PRIVATE include)

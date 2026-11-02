@@ -41,11 +41,17 @@ RideController::RideController() {
 }
 
 bool RideController::dispatchVehicle(int vehicleIndex) {
+
+   
     // Attempt to dispatch a vehicle to the first block (station)
     if (vehicleIndex < 0 || vehicleIndex >= static_cast<int>(vehicles.size())) {
         return false;
     }
     VehicleController& vehicle = vehicles[vehicleIndex]; 
+
+     if (!station.canDispatch()) {
+        return false; // Prevents early dispatch for safety
+    }
 
     // Request entry to the first block (station) for the vehicle
     bool granted = blocks[0].requestEntry(vehicle.getVehicleId());
@@ -112,4 +118,16 @@ void RideController::completeRideCycle(int vehicleIndex) { // Handle the complet
 
     vehicle.setCurrentBlock(-1); // Reset the vehicle's current block to indicate it is not in any block
     vehicle.setState(VehicleState::COMPLETED_CYCLE); // Update the vehicle's state to indicate the ride cycle is completed
+}
+
+void RideController::setStationGateClosed(bool closed) {
+    station.setGateClosed(closed);
+}
+
+void RideController::setStationRestraintsLocked(bool locked) {
+    station.setRestraintsLocked(locked);
+}
+
+void RideController::setStationEmergencyStopActive(bool active) {
+    station.setEmergencyStopActive(active);
 }
