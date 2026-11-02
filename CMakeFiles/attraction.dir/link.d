@@ -6,6 +6,7 @@ attraction: \
   CMakeFiles/attraction.dir/src/Block.cpp.o \
   CMakeFiles/attraction.dir/src/VehicleController.cpp.o \
   CMakeFiles/attraction.dir/src/RideController.cpp.o \
+  CMakeFiles/attraction.dir/src/StationController.cpp.o \
   /usr/lib/gcc/x86_64-linux-gnu/15/libstdc++.so \
   /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libm.so \
   /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libm.so \
@@ -48,6 +49,8 @@ CMakeFiles/attraction.dir/src/Block.cpp.o:
 CMakeFiles/attraction.dir/src/VehicleController.cpp.o:
 
 CMakeFiles/attraction.dir/src/RideController.cpp.o:
+
+CMakeFiles/attraction.dir/src/StationController.cpp.o:
 
 /usr/lib/gcc/x86_64-linux-gnu/15/libstdc++.so:
 

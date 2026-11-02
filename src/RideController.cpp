@@ -49,7 +49,7 @@ bool RideController::dispatchVehicle(int vehicleIndex) {
     }
     VehicleController& vehicle = vehicles[vehicleIndex]; 
 
-     if (!station.canDispatch()) {
+     if (!station.canDispatch() || !station.isDispatchRequested()) {
         return false; // Prevents early dispatch for safety
     }
 
@@ -59,6 +59,8 @@ bool RideController::dispatchVehicle(int vehicleIndex) {
     if (granted) {
         vehicle.setCurrentBlock(blocks[0].getId());
         vehicle.setState(VehicleState::MOVING);
+
+        station.clearDispatchRequest();
     }
     return granted;
 }
@@ -88,6 +90,12 @@ bool RideController::moveVehicleToNextBlock(int vehicleIndex) {
 
 void RideController::printStatus() const { // Print the current status of all vehicles and blocks in the ride
     std::cout << "Ride Status: " << std::endl;
+
+    std::cout << "Station Status: " << std::endl;
+    std::cout << "Gate Closed: " << (station.isGateClosed() ? "YES" : "NO") << std::endl;
+    std::cout << "Restraints Locked: " << (station.areRestraintsLocked() ? "YES" : "NO") << std::endl;
+    std::cout << "Emergency Stop Active: " << (station.isEmergencyStopActive() ? "YES" : "NO") << std::endl;
+    std::cout << "Dispatch Allowed: " << (station.canDispatch() ? "YES" : "NO") << std::endl;
 
     for (const VehicleController& vehicle : vehicles) { // Print the status of each vehicle
         std::cout << "Vehicle " << vehicle.getVehicleId() 
@@ -130,4 +138,8 @@ void RideController::setStationRestraintsLocked(bool locked) {
 
 void RideController::setStationEmergencyStopActive(bool active) {
     station.setEmergencyStopActive(active);
+}
+
+void RideController::requestStationDispatch() {
+    station.requestDispatch();
 }

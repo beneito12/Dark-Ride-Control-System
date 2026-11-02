@@ -8,6 +8,8 @@ int main() {
    ride.setStationGateClosed(true);
    ride.setStationRestraintsLocked(true);
    ride.setStationEmergencyStopActive(false);
+
+   ride.requestStationDispatch();
     
    for (int step = 0; step < 10; step++) {
     std::cout << "\n-- Simulation Step " << step << " --\n";

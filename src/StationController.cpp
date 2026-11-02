@@ -5,6 +5,7 @@ StationController::StationController()
     gateClosed = false;
     restraintsLocked = false;
     emergencyStopActive = false;
+    dispatchRequested = false;
 }
 
 bool StationController::isGateClosed() const
@@ -40,4 +41,19 @@ void StationController::setEmergencyStopActive(bool active)
 bool StationController::canDispatch() const
 {
     return gateClosed && restraintsLocked && !emergencyStopActive;
+}
+
+void StationController::requestDispatch()
+{
+    dispatchRequested = true;
+}
+
+bool StationController::isDispatchRequested() const
+{
+    return dispatchRequested;
+}
+
+void StationController::clearDispatchRequest()
+{
+    dispatchRequested = false;
 }

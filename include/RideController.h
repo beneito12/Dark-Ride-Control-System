@@ -31,4 +31,7 @@ public:
     void setStationGateClosed(bool closed);
     void setStationRestraintsLocked(bool locked);
     void setStationEmergencyStopActive(bool active);
+
+    void requestStationDispatch();
+    
 };

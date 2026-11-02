@@ -6,6 +6,7 @@ class StationController
         bool gateClosed;
         bool restraintsLocked;
         bool emergencyStopActive;
+        bool dispatchRequested;
 
     public:
         StationController();
@@ -19,5 +20,8 @@ class StationController
         void setEmergencyStopActive(bool active);
 
         bool canDispatch() const;
+        void requestDispatch();
+        bool isDispatchRequested() const;
+        void clearDispatchRequest();
 
 };
