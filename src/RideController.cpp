@@ -153,6 +153,19 @@ void RideController::setStationRestraintsLocked(bool active) {
 
 void RideController::setStationEmergencyStopActive(bool active) {
     station.setEmergencyStopActive(active);
+
+    if (active)
+    {
+        station.clearDispatchRequest();
+
+        for (VehicleController& vehicle : vehicles)
+        {
+            if (vehicle.getCurrentBlock() >= 0)
+            {
+                vehicle.setState(VehicleState::EMERGENCY_STOP);
+            }
+        }
+    }
 }
 
 void RideController::requestStationDispatch() {
