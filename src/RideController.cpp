@@ -53,8 +53,18 @@ bool RideController::dispatchVehicle(int vehicleIndex) {
     }
     VehicleController& vehicle = vehicles[vehicleIndex]; 
 
-     if (!station.canDispatch() || !station.isDispatchRequested()) {
-        return false; // Prevents early dispatch for safety
+    if (!station.isDispatchRequested())
+    {
+        return false;
+    }
+
+    // Consume the operator command immediately.
+    // Every dispatch attempt requires a fresh request.
+    station.clearDispatchRequest();
+
+    if (!station.canDispatch())
+    {
+        return false;
     }
 
     // Request entry to the first block (station) for the vehicle

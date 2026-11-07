@@ -89,3 +89,92 @@ TEST_CASE("Clearing emergency stop requires explicit reset before movement resum
 
     REQUIRE(ride.getVehicleCurrentBlock(0) != stoppedBlock);
 }
+
+TEST_CASE("Vehicle cannot dispatch without operator dispatch request")
+{
+    RideController ride;
+
+    ride.setStationGateClosed(true);
+    ride.setStationRestraintsLocked(true);
+    ride.setStationEmergencyStopActive(false);
+
+    // Station is safe, but operator has not requested dispatch.
+    ride.update();
+
+    REQUIRE(ride.getVehicleCurrentBlock(0) == -1);
+    REQUIRE_FALSE(ride.isBlockOccupied(0));
+}
+
+TEST_CASE("Vehicle dispatches when station is safe and operator requests dispatch")
+{
+    RideController ride;
+
+    ride.setStationGateClosed(true);
+    ride.setStationRestraintsLocked(true);
+    ride.setStationEmergencyStopActive(false);
+
+    ride.requestStationDispatch();
+    ride.update();
+
+    REQUIRE(ride.getVehicleCurrentBlock(0) == 0);
+    REQUIRE(ride.isBlockOccupied(0));
+    REQUIRE(ride.getBlockOccupyingVehicle(0) == 1);
+}
+
+TEST_CASE("Unsafe dispatch request does not remain latched")
+{
+    RideController ride;
+
+    // Unsafe condition: gate is open.
+    ride.setStationGateClosed(false);
+    ride.setStationRestraintsLocked(true);
+    ride.setStationEmergencyStopActive(false);
+
+    // Operator presses dispatch while unsafe.
+    ride.requestStationDispatch();
+    ride.update();
+
+    REQUIRE(ride.getVehicleCurrentBlock(0) == -1);
+
+    // Make the station safe afterward.
+    ride.setStationGateClosed(true);
+
+    // No new dispatch request has been made.
+    ride.update();
+
+    // Vehicle must still remain in the station.
+    REQUIRE(ride.getVehicleCurrentBlock(0) == -1);
+
+    // A fresh operator request should now work.
+    ride.requestStationDispatch();
+    ride.update();
+
+    REQUIRE(ride.getVehicleCurrentBlock(0) == 0);
+}
+
+TEST_CASE("Second vehicle cannot dispatch into occupied station block")
+{
+    RideController ride;
+
+    ride.setStationGateClosed(true);
+    ride.setStationRestraintsLocked(true);
+    ride.setStationEmergencyStopActive(false);
+
+    // Dispatch Vehicle 1 into Block 0.
+    ride.requestStationDispatch();
+    REQUIRE(ride.dispatchVehicle(0));
+
+    REQUIRE(ride.getVehicleCurrentBlock(0) == 0);
+    REQUIRE(ride.isBlockOccupied(0));
+
+    // Attempt to dispatch Vehicle 2 while Block 0 is occupied.
+    ride.requestStationDispatch();
+
+    REQUIRE_FALSE(ride.dispatchVehicle(1));
+
+    // Vehicle 2 must remain off the ride.
+    REQUIRE(ride.getVehicleCurrentBlock(1) == -1);
+
+    // Block 0 must still belong to Vehicle 1.
+    REQUIRE(ride.getBlockOccupyingVehicle(0) == 1);
+}
