@@ -73,8 +73,6 @@ bool RideController::dispatchVehicle(int vehicleIndex) {
     if (granted) {
         vehicle.setCurrentBlock(blocks[0].getId());
         vehicle.setState(VehicleState::MOVING);
-
-        station.clearDispatchRequest();
     }
     return granted;
 }
