@@ -55,3 +55,14 @@ TEST_CASE("VehicleController sends heartbeat message")
     REQUIRE(messages[0].length == 1);
     REQUIRE(messages[0].data[0] == 1);
 }
+
+TEST_CASE("VehicleController does not send heartbeat when disabled")
+{
+    CanBus bus;
+    VehicleController vehicle(1);
+
+    vehicle.setHeartbeatEnabled(false);
+    vehicle.sendHeartbeat(bus);
+
+    REQUIRE(bus.getMessages().empty());
+}

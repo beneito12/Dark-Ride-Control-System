@@ -6,6 +6,7 @@ VehicleController::VehicleController(int id){
     currentBlock = -1;
     state = VehicleState::WAITING_FOR_DISPATCH;
     ticksInCurrentBlock = 0;
+    heartbeatEnabled = true;
 }
 
 int VehicleController::getVehicleId() const {
@@ -38,6 +39,10 @@ void VehicleController::incrementBlockTimer() {
 }
 
 void VehicleController::sendHeartbeat(CanBus& bus) const {
+    if (!heartbeatEnabled) {
+        return;
+    }
+    
     CanMessage message{};
 
     message.id = VEHICLE_HEARTBEAT_BASE_ID + VehicleId;
@@ -45,4 +50,9 @@ void VehicleController::sendHeartbeat(CanBus& bus) const {
     message.data[0] = static_cast<uint8_t>(VehicleId);
 
     bus.transmit(message);
+}
+
+void VehicleController::setHeartbeatEnabled(bool enabled)
+ {
+    heartbeatEnabled = enabled;
 }

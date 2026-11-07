@@ -17,7 +17,8 @@ class VehicleController
     int VehicleId;
     int currentBlock;
     VehicleState state;
-     int ticksInCurrentBlock;
+    int ticksInCurrentBlock;
+    bool heartbeatEnabled;
 
     public:
     VehicleController(int id);
@@ -31,4 +32,5 @@ class VehicleController
     void setState(VehicleState newState);
     
     void sendHeartbeat(CanBus& bus) const;
+    void setHeartbeatEnabled(bool enabled);
 };
