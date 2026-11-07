@@ -3,6 +3,12 @@
 
 void RideController::update() {
 
+    canBus.clear(); // Clear old CAN messages before sending new ones
+    
+    for (VehicleController& vehicle : vehicles) {
+        vehicle.sendHeartbeat(canBus);
+    }
+    
     if (station.isEmergencyStopActive()) {
         return;
     }
@@ -208,4 +214,8 @@ bool RideController::isBlockOccupied(int blockIndex) const {
 
 int RideController::getBlockOccupyingVehicle(int blockIndex) const {
     return blocks[blockIndex].getOccupyingVehicle();
+}
+
+const std::vector<CanMessage>& RideController::getCanMessages() const {
+    return canBus.getMessages();
 }

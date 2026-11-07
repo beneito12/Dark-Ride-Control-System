@@ -178,3 +178,16 @@ TEST_CASE("Second vehicle cannot dispatch into occupied station block")
     // Block 0 must still belong to Vehicle 1.
     REQUIRE(ride.getBlockOccupyingVehicle(0) == 1);
 }
+
+TEST_CASE("All vehicles transmit CAN heartbeats during ride update")
+{
+    RideController ride;
+
+    ride.update();
+
+    const auto& messages = ride.getCanMessages();
+
+    REQUIRE(messages.size() == 2);
+    REQUIRE(messages[0].id == 0x101);
+    REQUIRE(messages[1].id == 0x102);
+}

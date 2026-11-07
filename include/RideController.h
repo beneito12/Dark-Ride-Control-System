@@ -4,6 +4,7 @@
 #include "VehicleController.h"
 #include <vector>
 #include "StationController.h"
+#include "CanBus.h"
 
 class RideController {
 public:
@@ -14,6 +15,8 @@ public:
    void completeRideCycle(int vehicleIndex);
 
    StationController station;
+
+   CanBus canBus;
 
   
 
@@ -39,4 +42,6 @@ public:
     VehicleState getVehicleState(int vehicleIndex) const;
     bool isBlockOccupied(int blockIndex) const;
     int getBlockOccupyingVehicle(int blockIndex) const;
+
+    const std::vector<CanMessage>& getCanMessages() const;
 };
