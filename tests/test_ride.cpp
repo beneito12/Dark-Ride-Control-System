@@ -191,3 +191,22 @@ TEST_CASE("All vehicles transmit CAN heartbeats during ride update")
     REQUIRE(messages[0].id == 0x101);
     REQUIRE(messages[1].id == 0x102);
 }
+
+TEST_CASE("Ride detects communication timeout after three missed heartbeats")
+{
+    RideController ride;
+
+    // Vehicle index 1 = Vehicle 2.
+    ride.setVehicleHeartbeatEnabled(1, false);
+
+    ride.update();
+    REQUIRE_FALSE(ride.isCommunicationFaultActive());
+
+    ride.update();
+    REQUIRE_FALSE(ride.isCommunicationFaultActive());
+
+    ride.update();
+
+    REQUIRE(ride.isCommunicationFaultActive());
+    REQUIRE(ride.getVehicleState(1) == VehicleState::FAULTED);
+}

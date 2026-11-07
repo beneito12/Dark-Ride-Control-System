@@ -7,7 +7,6 @@
 #include "CanBus.h"
 
 class RideController {
-public:
    private:
    std::vector<Block> blocks;
    
@@ -17,8 +16,10 @@ public:
    StationController station;
 
    CanBus canBus;
-
   
+    std::vector<int> missedHeartbeatCounts;
+    bool communicationFaultActive;
+    static constexpr int HEARTBEAT_TIMEOUT_TICKS = 3;
 
    public:
     RideController();
@@ -44,4 +45,7 @@ public:
     int getBlockOccupyingVehicle(int blockIndex) const;
 
     const std::vector<CanMessage>& getCanMessages() const;
+
+    void setVehicleHeartbeatEnabled(int vehicleIndex, bool enabled);
+    bool isCommunicationFaultActive() const;
 };

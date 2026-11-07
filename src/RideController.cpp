@@ -1,5 +1,7 @@
 #include "RideController.h"
+#include "CanProtocol.h"
 #include <iostream>
+
 
 void RideController::update() {
 
@@ -7,6 +9,33 @@ void RideController::update() {
     
     for (VehicleController& vehicle : vehicles) {
         vehicle.sendHeartbeat(canBus);
+    }
+
+    for (int i = 0; i < static_cast<int>(vehicles.size()); i++) {
+        bool heartbeatReceived = false;
+
+        uint32_t expectedId = VEHICLE_HEARTBEAT_BASE_ID + vehicles[i].getVehicleId();
+
+        for (const CanMessage& message : canBus.getMessages()) {
+            if (message.id == expectedId) {
+                heartbeatReceived = true;
+                break;
+            }
+        }
+        if (heartbeatReceived) {
+            missedHeartbeatCounts[i] = 0;
+        } else {
+            missedHeartbeatCounts[i]++;
+            if (missedHeartbeatCounts[i] >= HEARTBEAT_TIMEOUT_TICKS) {
+                communicationFaultActive = true;
+                vehicles[i].setState(VehicleState::FAULTED);
+            }
+        }
+    }
+
+    if (communicationFaultActive)
+    {
+        return;
     }
     
     if (station.isEmergencyStopActive()) {
@@ -48,6 +77,9 @@ RideController::RideController() {
     blocks.emplace_back(2, 3); // show scene
     vehicles.emplace_back(1);
     vehicles.emplace_back(2);
+
+    missedHeartbeatCounts.resize(vehicles.size(), 0);
+    communicationFaultActive = false;
 }
 
 bool RideController::dispatchVehicle(int vehicleIndex) {
@@ -153,16 +185,6 @@ void RideController::setStationGateClosed(bool closed) {
 
 void RideController::setStationRestraintsLocked(bool active) {
     station.setRestraintsLocked(active);
-
-    if (active) {
-        station.clearDispatchRequest();
-
-        for (VehicleController& vehicle : vehicles) {
-            if (vehicle.getCurrentBlock() >= 0){
-                vehicle.setState(VehicleState::EMERGENCY_STOP);
-            }
-        }
-    }
 }
 
 void RideController::setStationEmergencyStopActive(bool active) {
@@ -218,4 +240,17 @@ int RideController::getBlockOccupyingVehicle(int blockIndex) const {
 
 const std::vector<CanMessage>& RideController::getCanMessages() const {
     return canBus.getMessages();
+}
+
+void RideController::setVehicleHeartbeatEnabled(int vehicleIndex, bool enabled) 
+{
+    if (vehicleIndex < 0 || vehicleIndex >= static_cast<int>(vehicles.size())) {
+        return;
+    }
+
+    vehicles[vehicleIndex].setHeartbeatEnabled(enabled);
+}
+
+bool RideController::isCommunicationFaultActive() const {
+    return communicationFaultActive;
 }
