@@ -22,6 +22,7 @@ public:
 
     int getVehicleId(int vehicleIndex) const;
     void update();
+    void resetEmergencyStop();
 
     bool dispatchVehicle(int vehicleIndex);
     bool moveVehicleToNextBlock(int vehicleIndex);
@@ -34,4 +35,8 @@ public:
 
     void requestStationDispatch();
     
+    int getVehicleCurrentBlock(int vehicleIndex) const;
+    VehicleState getVehicleState(int vehicleIndex) const;
+    bool isBlockOccupied(int blockIndex) const;
+    int getBlockOccupyingVehicle(int blockIndex) const;
 };

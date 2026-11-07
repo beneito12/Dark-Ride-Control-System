@@ -3,6 +3,10 @@
 
 void RideController::update() {
 
+    if (station.isEmergencyStopActive()) {
+        return;
+    }
+
         // Update vehicles that have completed their cycle to waiting for dispatch
     for (VehicleController& vehicle : vehicles) {
         if (vehicle.getState() == VehicleState::COMPLETED_CYCLE) {
@@ -12,7 +16,7 @@ void RideController::update() {
     // Update vehicles that are currently in a block and move them to the next block if they have completed the required ticks
     for (int i = 0; i < static_cast<int>(vehicles.size()); i++) {
         int currentBlock = vehicles[i].getCurrentBlock();
-        if (currentBlock >= 0) {
+        if (currentBlock >= 0 && vehicles[i].getState() == VehicleState::MOVING) {
            int requiredTicks = blocks[currentBlock].getRequiredTicks();
 
            if (vehicles[i].getTicksInCurrentBlock() >= requiredTicks) {
@@ -133,8 +137,18 @@ void RideController::setStationGateClosed(bool closed) {
     station.setGateClosed(closed);
 }
 
-void RideController::setStationRestraintsLocked(bool locked) {
-    station.setRestraintsLocked(locked);
+void RideController::setStationRestraintsLocked(bool active) {
+    station.setRestraintsLocked(active);
+
+    if (active) {
+        station.clearDispatchRequest();
+
+        for (VehicleController& vehicle : vehicles) {
+            if (vehicle.getCurrentBlock() >= 0){
+                vehicle.setState(VehicleState::EMERGENCY_STOP);
+            }
+        }
+    }
 }
 
 void RideController::setStationEmergencyStopActive(bool active) {
@@ -143,4 +157,34 @@ void RideController::setStationEmergencyStopActive(bool active) {
 
 void RideController::requestStationDispatch() {
     station.requestDispatch();
+}
+
+void RideController::resetEmergencyStop() {
+    if (station.isEmergencyStopActive()) {
+        return;
+    }
+
+    for (VehicleController& vehicle : vehicles)
+     {
+        if (vehicle.getState() == VehicleState::EMERGENCY_STOP)
+         {
+            vehicle.setState(VehicleState::MOVING);
+        }
+    }
+}
+
+int RideController::getVehicleCurrentBlock(int vehicleIndex) const {
+    return vehicles[vehicleIndex].getCurrentBlock();
+}
+
+VehicleState RideController::getVehicleState(int vehicleIndex) const {
+    return vehicles[vehicleIndex].getState();
+}
+
+bool RideController::isBlockOccupied(int blockIndex) const {
+    return blocks[blockIndex].isOccupied();
+}
+
+int RideController::getBlockOccupyingVehicle(int blockIndex) const {
+    return blocks[blockIndex].getOccupyingVehicle();
 }

@@ -27,7 +27,11 @@ target_include_directories(attraction PRIVATE include)
 
 add_executable(tests
     tests/test_station.cpp
+    tests/test_ride.cpp
+    src/Block.cpp
+    src/VehicleController.cpp
     src/StationController.cpp
+    src/RideController.cpp
 )
 
 target_include_directories(tests PRIVATE include)
