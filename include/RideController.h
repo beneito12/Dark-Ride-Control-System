@@ -48,4 +48,6 @@ class RideController {
 
     void setVehicleHeartbeatEnabled(int vehicleIndex, bool enabled);
     bool isCommunicationFaultActive() const;
+
+    bool resetCommunicationFault();
 };

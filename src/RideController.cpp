@@ -254,3 +254,44 @@ void RideController::setVehicleHeartbeatEnabled(int vehicleIndex, bool enabled)
 bool RideController::isCommunicationFaultActive() const {
     return communicationFaultActive;
 }
+
+bool RideController::resetCommunicationFault() {
+    if (!communicationFaultActive) {
+        return false;
+    }
+
+    //verify all vehicles communicating
+    for (const VehicleController& vehicle : vehicles) {
+        uint32_t expectedId = VEHICLE_HEARTBEAT_BASE_ID + vehicle.getVehicleId();
+
+        bool heartbeatReceived = false;
+        for (const CanMessage& message : canBus.getMessages()) {
+            if (message.id == expectedId) {
+                heartbeatReceived = true;
+                break;
+            }
+        }
+
+        if (!heartbeatReceived) {
+            return false;
+        }
+    }
+
+    communicationFaultActive = false;
+    
+    for (VehicleController& vehicle : vehicles)
+    {
+        if (vehicle.getState() == VehicleState::FAULTED)
+        {
+            if (vehicle.getCurrentBlock() >= 0)
+            {
+                vehicle.setState(VehicleState::MOVING);
+            }
+            else
+            {
+                vehicle.setState(VehicleState::WAITING_FOR_DISPATCH);
+            }
+        }
+    }
+    return true;
+}

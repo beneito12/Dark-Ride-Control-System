@@ -210,3 +210,83 @@ TEST_CASE("Ride detects communication timeout after three missed heartbeats")
     REQUIRE(ride.isCommunicationFaultActive());
     REQUIRE(ride.getVehicleState(1) == VehicleState::FAULTED);
 }
+
+TEST_CASE("Communication fault freezes ride motion and preserves block occupancy")
+{
+    RideController ride;
+
+    ride.setStationGateClosed(true);
+    ride.setStationRestraintsLocked(true);
+    ride.setStationEmergencyStopActive(false);
+
+    ride.requestStationDispatch();
+    ride.update();
+
+    REQUIRE(ride.getVehicleCurrentBlock(0) == 0);
+
+    // Vehicle 2 stops communicating.
+    ride.setVehicleHeartbeatEnabled(1, false);
+
+    // Three missed heartbeats trigger the watchdog.
+    ride.update();
+    ride.update();
+    ride.update();
+
+    REQUIRE(ride.isCommunicationFaultActive());
+
+    int stoppedBlock = ride.getVehicleCurrentBlock(0);
+
+    REQUIRE(stoppedBlock >= 0);
+    REQUIRE(ride.isBlockOccupied(stoppedBlock));
+    REQUIRE(ride.getBlockOccupyingVehicle(stoppedBlock) == 1);
+
+    // More control cycles must not move Vehicle 1.
+    ride.update();
+    ride.update();
+    ride.update();
+
+    REQUIRE(ride.getVehicleCurrentBlock(0) == stoppedBlock);
+    REQUIRE(ride.isBlockOccupied(stoppedBlock));
+    REQUIRE(ride.getBlockOccupyingVehicle(stoppedBlock) == 1);
+}
+
+TEST_CASE("Communication fault requires restored heartbeat and explicit reset")
+{
+    RideController ride;
+
+    ride.setStationGateClosed(true);
+    ride.setStationRestraintsLocked(true);
+    ride.setStationEmergencyStopActive(false);
+
+    ride.requestStationDispatch();
+    ride.update();
+
+    REQUIRE(ride.getVehicleCurrentBlock(0) == 0);
+
+    // Simulate loss of Vehicle 2 communications.
+    ride.setVehicleHeartbeatEnabled(1, false);
+
+    ride.update();
+    ride.update();
+    ride.update();
+
+    REQUIRE(ride.isCommunicationFaultActive());
+
+    int stoppedBlock = ride.getVehicleCurrentBlock(0);
+
+    // Reset must fail while communications are still missing.
+    REQUIRE_FALSE(ride.resetCommunicationFault());
+
+    // Restore Vehicle 2 communications.
+    ride.setVehicleHeartbeatEnabled(1, true);
+
+    // Vehicle now sends a heartbeat, but the ride remains faulted.
+    ride.update();
+
+    REQUIRE(ride.isCommunicationFaultActive());
+    REQUIRE(ride.getVehicleCurrentBlock(0) == stoppedBlock);
+
+    // Explicit reset may now succeed.
+    REQUIRE(ride.resetCommunicationFault());
+    REQUIRE_FALSE(ride.isCommunicationFaultActive());
+}
