@@ -1,4 +1,5 @@
 #include "VehicleController.h"
+#include "CanProtocol.h"
 
 VehicleController::VehicleController(int id){
     VehicleId = id;
@@ -34,4 +35,14 @@ int VehicleController::getTicksInCurrentBlock() const {
 
 void VehicleController::incrementBlockTimer() {
     ticksInCurrentBlock++;
+}
+
+void VehicleController::sendHeartbeat(CanBus& bus) const {
+    CanMessage message{};
+
+    message.id = VEHICLE_HEARTBEAT_BASE_ID + VehicleId;
+    message.length = 1;
+    message.data[0] = static_cast<uint8_t>(VehicleId);
+
+    bus.transmit(message);
 }

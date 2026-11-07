@@ -1,4 +1,5 @@
 #pragma once
+#include "CanBus.h"
 
 enum class VehicleState {
     STOPPED,
@@ -28,4 +29,6 @@ class VehicleController
 
     void setCurrentBlock(int blockId);
     void setState(VehicleState newState);
+    
+    void sendHeartbeat(CanBus& bus) const;
 };

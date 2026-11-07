@@ -21,6 +21,7 @@ src/Block.cpp
 src/VehicleController.cpp
 src/RideController.cpp
 src/StationController.cpp
+src/CanBus.cpp
 )
 
 target_include_directories(attraction PRIVATE include)
@@ -28,10 +29,12 @@ target_include_directories(attraction PRIVATE include)
 add_executable(tests
     tests/test_station.cpp
     tests/test_ride.cpp
+    tests/test_can.cpp
     src/Block.cpp
     src/VehicleController.cpp
     src/StationController.cpp
     src/RideController.cpp
+    src/CanBus.cpp
 )
 
 target_include_directories(tests PRIVATE include)
