@@ -1,2 +1,9 @@
 build/
+_deps/
+CMakeFiles/
+CMakeCache.txt
+Makefile
+cmake_install.cmake
+CTestTestfile.cmake
+Testing/
 attraction

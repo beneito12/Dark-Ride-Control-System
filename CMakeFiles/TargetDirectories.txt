@@ -1,3 +1,0 @@
-/home/benny/projects/VirtualAttractionControl/CMakeFiles/attraction.dir
-/home/benny/projects/VirtualAttractionControl/CMakeFiles/edit_cache.dir
-/home/benny/projects/VirtualAttractionControl/CMakeFiles/rebuild_cache.dir

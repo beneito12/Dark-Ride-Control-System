@@ -95,6 +95,7 @@ void RideController::printStatus() const { // Print the current status of all ve
     std::cout << "Gate Closed: " << (station.isGateClosed() ? "YES" : "NO") << std::endl;
     std::cout << "Restraints Locked: " << (station.areRestraintsLocked() ? "YES" : "NO") << std::endl;
     std::cout << "Emergency Stop Active: " << (station.isEmergencyStopActive() ? "YES" : "NO") << std::endl;
+    std::cout << "Dispatch Requested: " << (station.isDispatchRequested() ? "YES" : "NO") << std::endl;
     std::cout << "Dispatch Allowed: " << (station.canDispatch() ? "YES" : "NO") << std::endl;
 
     for (const VehicleController& vehicle : vehicles) { // Print the status of each vehicle
