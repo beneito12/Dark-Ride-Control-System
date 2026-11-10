@@ -293,3 +293,31 @@ TEST_CASE("Communication fault requires restored heartbeat and explicit reset")
     REQUIRE(ride.resetCommunicationFault());
     REQUIRE_FALSE(ride.isCommunicationFaultActive());
 }
+
+TEST_CASE("Vehicle entering show block triggers show controller")
+{
+    RideController ride;
+
+    ride.setStationGateClosed(true);
+    ride.setStationRestraintsLocked(true);
+    ride.setStationEmergencyStopActive(false);
+
+    ride.requestStationDispatch();
+    ride.update();
+
+    REQUIRE(ride.getShowState() == ShowState::IDLE);
+
+    // Block 0 requires 2 ticks before leaving.
+    ride.update();
+    ride.update();
+    ride.update();
+
+    REQUIRE(ride.getVehicleCurrentBlock(0) == 1);
+
+    // Block 1 requires 1 tick.
+    ride.update();
+    ride.update();
+
+    REQUIRE(ride.getVehicleCurrentBlock(0) == 2);
+    REQUIRE(ride.getShowState() == ShowState::RUNNING);
+}

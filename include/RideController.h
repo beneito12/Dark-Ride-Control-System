@@ -5,6 +5,7 @@
 #include <vector>
 #include "StationController.h"
 #include "CanBus.h"
+#include "ShowController.h"
 
 class RideController {
    private:
@@ -16,6 +17,7 @@ class RideController {
    StationController station;
 
    CanBus canBus;
+   ShowController showController;
   
     std::vector<int> missedHeartbeatCounts;
     bool communicationFaultActive;
@@ -50,4 +52,7 @@ class RideController {
     bool isCommunicationFaultActive() const;
 
     bool resetCommunicationFault();
+
+    ShowState getShowState() const;
+    int getShowTick() const;
 };

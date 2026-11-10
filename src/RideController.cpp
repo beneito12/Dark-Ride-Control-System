@@ -43,6 +43,8 @@ void RideController::update() {
         return;
     }
 
+    showController.update();
+
         // Update vehicles that have completed their cycle to waiting for dispatch
     for (VehicleController& vehicle : vehicles) {
         if (vehicle.getState() == VehicleState::COMPLETED_CYCLE) {
@@ -132,10 +134,25 @@ bool RideController::moveVehicleToNextBlock(int vehicleIndex) {
         return true;
     }
     bool granted = blocks[nextBlock].requestEntry(vehicle.getVehicleId()); // Request entry to the next block for the vehicle
-    if (granted) {
-        blocks[currentBlock].release(); // Release the current block for the vehicle
-        vehicle.setCurrentBlock(nextBlock); // Update the vehicle's current block to the next block
+    if (granted)
+{
+    blocks[currentBlock].release();
+    vehicle.setCurrentBlock(nextBlock);
+
+    if (nextBlock == 2)
+    {
+        CanMessage showTrigger{};
+
+        showTrigger.id = SHOW_TRIGGER_ID;
+        showTrigger.length = 1;
+        showTrigger.data[0] =
+            static_cast<uint8_t>(vehicle.getVehicleId());
+
+        canBus.transmit(showTrigger);
+
+        showController.startShow();
     }
+}
     return granted;
 }
 
@@ -295,4 +312,12 @@ bool RideController::resetCommunicationFault() {
         }
     }
     return true;
+}
+
+ShowState RideController::getShowState() const {
+    return showController.getState();
+}
+
+int RideController::getShowTick() const {
+    return showController.getShowTick();
 }
