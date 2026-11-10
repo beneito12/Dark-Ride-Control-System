@@ -55,4 +55,6 @@ class RideController {
 
     ShowState getShowState() const;
     int getShowTick() const;
+
+    ShowCue getActiveShowCue() const;
 };

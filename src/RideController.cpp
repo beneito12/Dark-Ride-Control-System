@@ -321,3 +321,7 @@ ShowState RideController::getShowState() const {
 int RideController::getShowTick() const {
     return showController.getShowTick();
 }
+
+ShowCue RideController::getActiveShowCue() const {
+    return showController.getActiveCue();
+}

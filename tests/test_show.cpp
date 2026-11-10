@@ -60,3 +60,4 @@ TEST_CASE("Show controller advances through show cues")
     REQUIRE(show.getActiveCue() == ShowCue::AUDIO);
     REQUIRE(show.getState() == ShowState::COMPLETE);
 }
+

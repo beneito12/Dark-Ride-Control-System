@@ -321,3 +321,30 @@ TEST_CASE("Vehicle entering show block triggers show controller")
     REQUIRE(ride.getVehicleCurrentBlock(0) == 2);
     REQUIRE(ride.getShowState() == ShowState::RUNNING);
 }
+
+TEST_CASE("Ride exposes active show cue")
+{
+    RideController ride;
+
+    ride.setStationGateClosed(true);
+    ride.setStationRestraintsLocked(true);
+    ride.setStationEmergencyStopActive(false);
+
+    ride.requestStationDispatch();
+    ride.update();
+
+    // Advance Vehicle 1 into show block.
+    ride.update();
+    ride.update();
+    ride.update();
+    ride.update();
+    ride.update();
+
+    REQUIRE(ride.getVehicleCurrentBlock(0) == 2);
+    REQUIRE(ride.getShowState() == ShowState::RUNNING);
+
+    // Next ride update advances the show controller.
+    ride.update();
+
+    REQUIRE(ride.getActiveShowCue() == ShowCue::LIGHTING);
+}
