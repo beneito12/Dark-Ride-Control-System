@@ -33,4 +33,6 @@ class VehicleController
     
     void sendHeartbeat(CanBus& bus) const;
     void setHeartbeatEnabled(bool enabled);
+
+    void sendStatus(CanBus& bus) const;
 };

@@ -179,7 +179,7 @@ TEST_CASE("Second vehicle cannot dispatch into occupied station block")
     REQUIRE(ride.getBlockOccupyingVehicle(0) == 1);
 }
 
-TEST_CASE("All vehicles transmit CAN heartbeats during ride update")
+TEST_CASE("All vehicles transmit CAN heartbeats and status messages during ride update")
 {
     RideController ride;
 
@@ -187,9 +187,12 @@ TEST_CASE("All vehicles transmit CAN heartbeats during ride update")
 
     const auto& messages = ride.getCanMessages();
 
-    REQUIRE(messages.size() == 2);
+   REQUIRE(messages.size() == 4);
+
     REQUIRE(messages[0].id == 0x101);
-    REQUIRE(messages[1].id == 0x102);
+    REQUIRE(messages[1].id == 0x201);
+    REQUIRE(messages[2].id == 0x102);
+    REQUIRE(messages[3].id == 0x202);
 }
 
 TEST_CASE("Ride detects communication timeout after three missed heartbeats")

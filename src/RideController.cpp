@@ -9,6 +9,7 @@ void RideController::update() {
     
     for (VehicleController& vehicle : vehicles) {
         vehicle.sendHeartbeat(canBus);
+        vehicle.sendStatus(canBus);
     }
 
     for (int i = 0; i < static_cast<int>(vehicles.size()); i++) {

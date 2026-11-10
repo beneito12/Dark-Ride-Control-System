@@ -66,3 +66,27 @@ TEST_CASE("VehicleController does not send heartbeat when disabled")
 
     REQUIRE(bus.getMessages().empty());
 }
+
+TEST_CASE("Vehicle transmits status over CAN bus")
+{
+    CanBus bus;
+    VehicleController vehicle(1);
+
+    vehicle.setCurrentBlock(2);
+    vehicle.setState(VehicleState::MOVING);
+
+    vehicle.sendStatus(bus);
+
+    const auto& messages = bus.getMessages();
+
+    REQUIRE(messages.size() == 1);
+    REQUIRE(messages[0].id == 0x201);
+    REQUIRE(messages[0].length == 4);
+
+    REQUIRE(messages[0].data[0] == 1);
+    REQUIRE(messages[0].data[1] == 2);
+    REQUIRE(messages[0].data[2] ==
+            static_cast<uint8_t>(VehicleState::MOVING));
+
+    REQUIRE((messages[0].data[3] & (1 << 0)) != 0);
+}
