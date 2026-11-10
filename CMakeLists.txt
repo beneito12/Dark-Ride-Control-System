@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.16)
 
 project(VirtualAttractionControl)
 
+enable_testing()
+
 include(FetchContent)
 
 FetchContent_Declare(
@@ -43,3 +45,5 @@ add_executable(tests
 target_include_directories(tests PRIVATE include)
 
 target_link_libraries(tests PRIVATE Catch2::Catch2WithMain)
+
+add_test(NAME VACS_Tests COMMAND tests)
