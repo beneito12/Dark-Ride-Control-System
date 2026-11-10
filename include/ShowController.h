@@ -7,11 +7,20 @@ enum class ShowState
     COMPLETE
 };
 
+enum class ShowCue
+{
+    NONE,
+    LIGHTING,
+    ANIMATRONIC,
+    AUDIO
+};
+
 class ShowController
 {
     private:
     ShowState state;
     int showTick;
+    ShowCue activeCue;
 
     public: 
         ShowController();
@@ -22,4 +31,5 @@ class ShowController
 
         ShowState getState() const;
         int getShowTick() const;
+        ShowCue getActiveCue() const;
 };

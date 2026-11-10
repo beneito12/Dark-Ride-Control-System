@@ -4,6 +4,7 @@ ShowController::ShowController()
 {
     state = ShowState::IDLE;
     showTick = 0;
+    activeCue = ShowCue::NONE;
 }
 
 void ShowController::startShow()
@@ -22,8 +23,18 @@ void ShowController::update()
         return;
     }
     showTick++;
-    if (showTick >= 3) // Example condition for show completion
+
+    if (showTick == 1)
     {
+        activeCue = ShowCue::LIGHTING;
+    }
+    if (showTick == 2)
+    {
+        activeCue = ShowCue::ANIMATRONIC;
+    }
+    if (showTick >= 3) 
+    {
+        activeCue = ShowCue::AUDIO;
         state = ShowState::COMPLETE;
     }
 }
@@ -32,6 +43,7 @@ void ShowController::reset()
 {
     state = ShowState::IDLE;
     showTick = 0;
+    activeCue = ShowCue::NONE;
 }
 
 ShowState ShowController::getState() const
@@ -42,4 +54,9 @@ ShowState ShowController::getState() const
 int ShowController::getShowTick() const
 {
     return showTick;
+}
+
+ShowCue ShowController::getActiveCue() const
+{
+    return activeCue;
 }

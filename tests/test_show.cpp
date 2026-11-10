@@ -41,3 +41,22 @@ TEST_CASE("Show controller reset returns to idle")
     REQUIRE(show.getState() == ShowState::IDLE);
     REQUIRE(show.getShowTick() == 0);
 }
+
+TEST_CASE("Show controller advances through show cues")
+{
+    ShowController show;
+
+    show.startShow();
+
+    REQUIRE(show.getActiveCue() == ShowCue::NONE);
+
+    show.update();
+    REQUIRE(show.getActiveCue() == ShowCue::LIGHTING);
+
+    show.update();
+    REQUIRE(show.getActiveCue() == ShowCue::ANIMATRONIC);
+
+    show.update();
+    REQUIRE(show.getActiveCue() == ShowCue::AUDIO);
+    REQUIRE(show.getState() == ShowState::COMPLETE);
+}
