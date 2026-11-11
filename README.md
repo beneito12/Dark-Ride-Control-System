@@ -1,206 +1,333 @@
 # Virtual Attraction Control System (VACS)
 
-![C++ CI](https://github.com/bennettfix/VirtualAttractionControl/actions/workflows/ci.yml/badge.svg)
 
-A C++ simulation of a distributed attraction control system featuring multi-vehicle block control, station safety interlocks, CAN-style communications, watchdog fault detection, explicit fault recovery, and synchronized show control.
+A C++17 simulation of a distributed attraction control system focused on multi-vehicle ride control, block-zone protection, station interlocks, CAN-style communication, fault handling, and synchronized show control.
 
-VACS is designed as an engineering-focused simulation rather than a graphical ride simulator. The project emphasizes deterministic state machines, safety-oriented behavior, distributed communication, fault handling, and automated verification.
+VACS was built as a Computer Engineering portfolio project to demonstrate embedded/control-system architecture, safety-oriented logic, automated testing, and fault diagnostics in a themed-entertainment context.
 
-## Key Features
+> This project is an educational simulation. It does not reproduce any proprietary attraction-control architecture and is not intended for use as a certified safety-critical controller.
 
-- Multi-vehicle block-zone control
-- Protected block occupancy and vehicle ownership
-- Configurable dwell timing
-- Vehicle state-machine control
+---
+
+## Features
+
+- Configurable multi-vehicle ride simulation
+- Exclusive block-zone occupancy
 - Station gate and restraint interlocks
-- Operator dispatch requests and permissives
+- Operator dispatch requests
 - Emergency-stop handling with explicit reset
-- Simulated CAN communication bus
-- Vehicle heartbeat and status messages
-- Bit-packed status flags
-- Communication watchdog monitoring
-- Heartbeat timeout detection
-- Communication fault injection and recovery
-- Ride-wide motion inhibition during communication faults
-- Show-scene triggering based on vehicle position
+- Simulated CAN communication
+- Per-vehicle heartbeat and status messages
+- Communication watchdogs
+- Latched communication faults
+- Fault-source diagnostics
+- Show-scene triggering
 - Lighting, animatronic, and audio show cues
-- Catch2 unit and integration testing
-- CMake / CTest build and test system
+- Event logging with simulation timestamps
+- Catch2 automated tests
+- CTest integration
 - GitHub Actions continuous integration
 
-## Architecture
+---
+
+## System Overview
 
 ```mermaid
 flowchart TD
-    RC[RideController<br/>Supervisory Control]
+    RC[RideController]
 
-    SC[StationController<br/>Gate / Restraints / E-Stop]
-    CAN[CanBus<br/>Simulated Network]
-    V1[VehicleController 1]
-    V2[VehicleController 2]
-    BLOCKS[Block System<br/>Occupancy Protection]
-    SHOW[ShowController<br/>Show Cue Sequencing]
+    RC --> SC[StationController]
+    RC --> CB[CAN Bus]
+    RC --> SH[ShowController]
+    RC --> BS[Block System]
 
-    SC --> RC
-    RC <--> CAN
-    CAN <--> V1
-    CAN <--> V2
-    RC --> BLOCKS
-    RC --> SHOW
+    CB --> V1[Vehicle Controller 1]
+    CB --> V2[Vehicle Controller 2]
+    CB --> VN[Additional Vehicle Controllers]
+
+    V1 --> BS
+    V2 --> BS
+    VN --> BS
+
+    BS --> B0[Block 0 - Station]
+    BS --> B1[Block 1 - Track]
+    BS --> B2[Block 2 - Show Scene]
 ```
 
-`RideController` coordinates attraction-level behavior while each subsystem maintains its own state and responsibilities.
+`RideController` acts as the supervisory controller. It coordinates vehicle movement, station dispatch, block occupancy, communication monitoring, fault recovery, and show triggering.
 
-## Safety-Oriented Design
+---
 
-VACS uses conservative control behavior throughout the simulation.
+## Multi-Vehicle Block Control
 
-- Vehicles cannot enter an occupied block.
-- A vehicle retains ownership of its current block during an E-stop or communication fault.
-- Dispatch requires both valid safety permissives and a fresh operator request.
-- Dispatch requests made while conditions are unsafe are rejected rather than stored.
-- E-stop activation halts active vehicles and requires an explicit reset before motion resumes.
-- Communication loss triggers a watchdog fault and inhibits ride motion.
-- Restoring communication does not automatically clear a communication fault.
+The vehicle fleet is configurable:
 
-This separation between **permissives**, **commands**, **states**, and **faults** is intentional.
+```cpp
+RideController ride(4);
+```
 
-## CAN Communication
+Vehicles move through three exclusive blocks:
 
-VACS includes a software simulation of CAN-style distributed communications.
+```text
+Block 0 - Station
+      |
+      v
+Block 1 - Track
+      |
+      v
+Block 2 - Show Scene
+      |
+      v
+Ride Cycle Complete
+```
 
-Current message IDs include:
+A vehicle cannot enter a block that is already occupied.
+
+Example operating state:
+
+```text
+Vehicle 2 | Block: 2 | State: MOVING
+Vehicle 3 | Block: 1 | State: MOVING
+Vehicle 4 | Block: 0 | State: MOVING
+Vehicle 1 | Block: -1 | State: COMPLETED_CYCLE
+```
+
+This allows multiple vehicles to operate concurrently while maintaining block separation.
+
+---
+
+## Station Safety
+
+Dispatch requires:
+
+```text
+Gate Closed
+AND
+Restraints Locked
+AND
+Emergency Stop Not Active
+AND
+Fresh Dispatch Request
+```
+
+Dispatch commands are consumed when an attempt is made. An unsafe request therefore cannot remain latched and later dispatch a vehicle automatically when conditions become safe.
+
+---
+
+## CAN-Style Communication
+
+Each vehicle transmits simulated CAN messages during every control cycle.
 
 | CAN ID | Purpose |
 |---|---|
-| `0x101` | Vehicle 1 heartbeat |
-| `0x102` | Vehicle 2 heartbeat |
-| `0x201` | Vehicle 1 status |
-| `0x202` | Vehicle 2 status |
+| `0x100 + Vehicle ID` | Vehicle heartbeat |
+| `0x200 + Vehicle ID` | Vehicle status |
 | `0x300` | Show trigger |
 
-Each vehicle publishes heartbeat and status information during control cycles.
+Examples:
 
-Status messages include information such as:
+```text
+0x101 - Vehicle 1 Heartbeat
+0x102 - Vehicle 2 Heartbeat
+0x201 - Vehicle 1 Status
+0x202 - Vehicle 2 Status
+0x300 - Show Trigger
+```
 
-- Vehicle ID
-- Current block
-- Vehicle state
-- Bit-packed status flags
+Vehicle status frames include block position, vehicle state, and packed status flags.
 
-A watchdog monitors expected vehicle heartbeats. After three consecutive missed heartbeats, the system latches a communication fault and inhibits normal ride motion.
+---
+
+## Communication Watchdog
+
+Each vehicle is expected to transmit a heartbeat.
+
+After three consecutive missed heartbeats:
+
+1. The affected vehicle enters `FAULTED`.
+2. A communication fault becomes active.
+3. Ride movement is inhibited.
+4. Existing block occupancy is preserved.
+5. The fault remains latched.
+
+Restoring communication alone does not restart the ride.
+
+Recovery requires restored heartbeat communication followed by an explicit fault reset.
+
+Example diagnostic output:
+
+```text
+Communication Fault: ACTIVE | Source: Vehicle 2 | Missed Heartbeats: 3
+```
+
+---
+
+## Emergency Stop
+
+When E-stop is activated:
+
+- Pending dispatch requests are cleared.
+- Vehicles currently on the ride enter `EMERGENCY_STOP`.
+- Block occupancy remains unchanged.
+- Vehicle motion is inhibited.
+
+Clearing the E-stop condition does not automatically restart motion.
+
+An explicit reset is required.
+
+---
 
 ## Show Control
 
-When a vehicle enters the designated show block, VACS generates a show trigger and starts a separate show-control state machine.
-
-The current sequence includes:
+Entering Block 2 triggers a show sequence.
 
 ```text
-Tick 1 -> LIGHTING
-Tick 2 -> ANIMATRONIC
-Tick 3 -> AUDIO
-          |
-          v
-       COMPLETE
+Tick 1 - LIGHTING
+Tick 2 - ANIMATRONIC
+Tick 3 - AUDIO / COMPLETE
 ```
 
-Show control is kept separate from ride-safety logic so entertainment sequencing does not determine motion permissives.
+A show-trigger CAN frame is also transmitted when a vehicle enters the scene.
 
-## Automated Testing
+The show controller can be triggered again when later vehicles reach the show block.
 
-VACS uses Catch2 for unit and integration testing.
+---
 
-The test suite covers:
+## Event Logging
 
-- Station gate, restraint, and E-stop behavior
-- Dispatch permissives and operator-request handling
-- Block occupancy protection
-- Multi-vehicle movement
-- E-stop behavior and recovery
-- CAN frame transmission
-- Vehicle heartbeat and status messages
-- Communication fault injection
-- Watchdog timeout detection
-- Communication fault recovery
-- Show-controller state and cue sequencing
-- Automatic show triggering from vehicle position
+Important control events are recorded with simulation tick numbers.
 
-CTest is used as the project test runner, and GitHub Actions automatically builds and tests the repository on pushes and pull requests to `main`.
+Example:
 
-## Build
+```text
+[Tick 6] Vehicle 1 entered Show Block - show triggered
+[Tick 10] Vehicle 2 entered Show Block - show triggered
+[Tick 13] Communication fault detected for vehicle 2
+[Tick 13] Communication fault reset failed: Vehicle 2 heartbeat missing
+[Tick 14] Communication fault reset accepted
+[Tick 15] Emergency stop activated
+[Tick 16] Emergency stop cleared
+[Tick 17] Emergency stop reset accepted
+```
 
-### Requirements
+---
 
-- C++17-compatible compiler
-- CMake 3.16+
+## Testing
+
+VACS uses Catch2 for automated testing.
+
+Coverage includes:
+
+- Station interlocks
+- Dispatch behavior
+- Block occupancy
+- Multi-vehicle separation
+- Emergency-stop behavior
+- CAN messages
+- Heartbeat transmission
+- Vehicle status frames
+- Watchdog timeouts
+- Fault latching
+- Fault recovery
+- Configurable fleet size
+- Show control
+- Event logging
+
+GitHub Actions automatically builds and tests the project on pushes and pull requests to `main`.
+
+---
+
+## Build and Run
+
+Requirements:
+
+- C++17 compiler
+- CMake
 - Git
 
-Catch2 is downloaded automatically through CMake `FetchContent`.
+Configure and build:
 
 ```bash
-git clone https://github.com/bennettfix/VirtualAttractionControl.git
-cd VirtualAttractionControl
-mkdir -p build
-cd build
-cmake ..
-cmake --build .
+cmake -S . -B build
+cmake --build build
 ```
 
-## Run
-
-From the `build` directory:
+Run the demonstration:
 
 ```bash
+./build/attraction
+```
+
+Run automated tests:
+
+```bash
+ctest --test-dir build --output-on-failure
+```
+
+Or from inside the build directory:
+
+```bash
+cd build
+cmake --build .
+./tests
 ./attraction
 ```
 
-## Test
+---
 
-```bash
-ctest --output-on-failure
+## Project Structure
+
+```text
+VirtualAttractionControl/
+├── include/
+│   ├── Block.h
+│   ├── CanBus.h
+│   ├── CanMessage.h
+│   ├── CanProtocol.h
+│   ├── RideController.h
+│   ├── ShowController.h
+│   ├── StationController.h
+│   └── VehicleController.h
+├── src/
+│   ├── Block.cpp
+│   ├── CanBus.cpp
+│   ├── RideController.cpp
+│   ├── ShowController.cpp
+│   ├── StationController.cpp
+│   └── VehicleController.cpp
+├── tests/
+├── docs/
+│   ├── ARCHITECTURE.md
+│   └── SAFETY.md
+├── .github/workflows/
+│   └── ci.yml
+├── CMakeLists.txt
+├── main.cpp
+└── README.md
 ```
 
-The Catch2 executable can also be run directly:
+---
 
-```bash
-./tests
-```
+## Documentation
+
+- [System Architecture](docs/ARCHITECTURE.md)
+- [Safety and Fault Handling](docs/SAFETY.md)
+
+---
 
 ## Technology
 
 - C++17
 - CMake
-- CTest
 - Catch2
+- CTest
 - Git
-- GitHub
 - GitHub Actions
-- WSL2 / Ubuntu
-- Visual Studio Code
 
-## Project Scope
-
-VACS is an educational and portfolio simulation intended to demonstrate software and systems-engineering concepts relevant to embedded systems, controls, automation, and themed-entertainment technology.
-
-It is not intended to reproduce any specific proprietary attraction-control architecture or serve as a certified ride-control system.
-
-## Future Expansion
-
-Potential future work includes:
-
-- Physical CAN hardware
-- STM32-based distributed controller nodes
-- Motor and encoder simulation
-- PID motion control
-- Additional fault modes
-- Operator HMI
-- Event and fault logging
-- More complex show sequencing
-- Physical miniature attraction hardware
+---
 
 ## Author
 
 **Bennett Fix**
 
-Computer Engineering student interested in embedded systems, controls, automation, and themed-entertainment technology.
+Computer Engineering student interested in embedded systems, control systems, automation, autonomous systems, and themed-entertainment technology.

@@ -121,7 +121,9 @@ int main()
     // Configure normal station safety permissives.
     ride.setStationGateClosed(true);
     ride.setStationRestraintsLocked(true);
+    emergencyStopActive = true;
     ride.setStationEmergencyStopActive(false);
+    ride.resetEmergencyStop();  // mirrors real world operation where estop is cleared after power on
 
     auto runStep = [&](const std::string& description)
     {
