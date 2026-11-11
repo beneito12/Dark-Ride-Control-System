@@ -73,13 +73,16 @@ void RideController::update() {
     }
 }
 
-RideController::RideController() {
-    // Initialize the ride with blocks and vehicles
+RideController::RideController(int vehicleCount)
+{
     blocks.emplace_back(0, 2); // station
     blocks.emplace_back(1, 1); // track
     blocks.emplace_back(2, 3); // show scene
-    vehicles.emplace_back(1);
-    vehicles.emplace_back(2);
+
+    for (int id = 1; id <= vehicleCount; id++)
+    {
+        vehicles.emplace_back(id);
+    }
 
     missedHeartbeatCounts.resize(vehicles.size(), 0);
     communicationFaultActive = false;
@@ -324,4 +327,8 @@ int RideController::getShowTick() const {
 
 ShowCue RideController::getActiveShowCue() const {
     return showController.getActiveCue();
+}
+
+int RideController::getVehicleCount() const {
+    return static_cast<int>(vehicles.size());
 }

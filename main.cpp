@@ -70,19 +70,14 @@ const char* showCueToString(ShowCue cue)
 
 void printDemoStatus(const RideController& ride)
 {
+    for (int i = 0; i < ride.getVehicleCount(); i++)
+{
     std::cout
-        << "Vehicle 1 | Block: "
-        << ride.getVehicleCurrentBlock(0)
-        << " | State: "
-        << vehicleStateToString(ride.getVehicleState(0))
+        << "Vehicle " << ride.getVehicleId(i)
+        << " | Block: " << ride.getVehicleCurrentBlock(i)
+        << " | State: " << vehicleStateToString(ride.getVehicleState(i))
         << '\n';
-
-    std::cout
-        << "Vehicle 2 | Block: "
-        << ride.getVehicleCurrentBlock(1)
-        << " | State: "
-        << vehicleStateToString(ride.getVehicleState(1))
-        << '\n';
+}
 
     std::cout
         << "Communication Fault: "
@@ -109,7 +104,7 @@ int main()
     std::cout << " Distributed Controls Demonstration\n";
     std::cout << "========================================\n";
 
-    RideController ride;
+    RideController ride(4);
 
     // Configure normal station safety permissives.
     ride.setStationGateClosed(true);
@@ -124,25 +119,46 @@ int main()
         printDemoStatus(ride);
     };
 
+      // ----------------------------------------------------
+      // PHASE 1: MULTI-VEHICLE NORMAL OPERATION
+      // ----------------------------------------------------
+
+      std::cout << "\n=== PHASE 1: MULTI-VEHICLE OPERATION ===\n";
+
+      // Dispatch Vehicle 1.
+      ride.requestStationDispatch();
+      runStep("Dispatch Vehicle 1");
+
+      runStep("Vehicle 1 station dwell - cycle 1");
+      runStep("Vehicle 1 station dwell - cycle 2");
+
+      // During this update Vehicle 1 leaves Block 0.
+      // The pending dispatch request allows Vehicle 2 to enter it.
+      ride.requestStationDispatch();
+      runStep("Vehicle 1 advances; Vehicle 2 dispatches");
+
+      // Vehicle 1 progresses toward the show block while Vehicle 2
+      // occupies the station.
+      runStep("Vehicles 1 and 2 advance through ride");
+
+      // Vehicle 1 enters the show block.
+      runStep("Vehicle 1 enters show block");
+
+      // Vehicle 2 is now ready to leave the station.
+      // Request Vehicle 3 before the same update.
+      ride.requestStationDispatch();
+      runStep("Vehicle 2 advances; Vehicle 3 dispatches");
+
+      runStep("Three vehicles circulating");
+      runStep("Block protection maintains vehicle separation");
+
+      // Vehicle 1 exits, Vehicle 2 can enter the show block,
+      // Vehicle 3 can enter Block 1, and Vehicle 4 can dispatch.
+      ride.requestStationDispatch();
+      runStep("Vehicle 4 dispatches as ride pipeline advances");
+
     // ----------------------------------------------------
-    // PHASE 1: NORMAL DISPATCH AND BLOCK MOVEMENT
-    // ----------------------------------------------------
-
-    std::cout << "\n=== PHASE 1: NORMAL OPERATION ===\n";
-
-    ride.requestStationDispatch();
-
-    runStep("Operator requests dispatch");
-
-    runStep("Station dwell cycle 1");
-    runStep("Station dwell cycle 2");
-    runStep("Vehicle advances from station");
-
-    runStep("Track block dwell cycle");
-    runStep("Vehicle enters show block");
-
-    // ----------------------------------------------------
-    // PHASE 2: SHOW CONTROL + COMMUNICATION FAILURE
+    // PHASE 2: SHOW CONTROL + COMMUNICATION FAULT
     // ----------------------------------------------------
 
     std::cout << "\n=== PHASE 2: SHOW CONTROL + CAN FAULT ===\n";

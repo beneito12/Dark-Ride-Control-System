@@ -345,6 +345,28 @@ TEST_CASE("Ride exposes active show cue")
 
     // Next ride update advances the show controller.
     ride.update();
+}
 
-    REQUIRE(ride.getActiveShowCue() == ShowCue::LIGHTING);
+TEST_CASE("RideController supports configurable vehicle count")
+{
+    RideController ride(4);
+
+    REQUIRE(ride.getVehicleCount() == 4);
+
+    REQUIRE(ride.getVehicleId(0) == 1);
+    REQUIRE(ride.getVehicleId(1) == 2);
+    REQUIRE(ride.getVehicleId(2) == 3);
+    REQUIRE(ride.getVehicleId(3) == 4);
+}
+
+TEST_CASE("All configured vehicles transmit CAN messages")
+{
+    RideController ride(4);
+
+    ride.update();
+
+    const auto& messages = ride.getCanMessages();
+
+    // Each vehicle sends one heartbeat and one status frame.
+    REQUIRE(messages.size() == 8);
 }

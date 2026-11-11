@@ -24,7 +24,7 @@ class RideController {
     static constexpr int HEARTBEAT_TIMEOUT_TICKS = 3;
 
    public:
-    RideController();
+    RideController(int vehicleCount = 2);
 
     int getVehicleId(int vehicleIndex) const;
     void update();
@@ -57,4 +57,6 @@ class RideController {
     int getShowTick() const;
 
     ShowCue getActiveShowCue() const;
+
+    int getVehicleCount() const;
 };

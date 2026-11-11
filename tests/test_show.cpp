@@ -61,3 +61,20 @@ TEST_CASE("Show controller advances through show cues")
     REQUIRE(show.getState() == ShowState::COMPLETE);
 }
 
+TEST_CASE("Completed show can be triggered again")
+{
+    ShowController show;
+
+    show.startShow();
+    show.update();
+    show.update();
+    show.update();
+
+    REQUIRE(show.getState() == ShowState::COMPLETE);
+
+    show.startShow();
+
+    REQUIRE(show.getState() == ShowState::RUNNING);
+    REQUIRE(show.getShowTick() == 0);
+    REQUIRE(show.getActiveCue() == ShowCue::NONE);
+}

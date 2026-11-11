@@ -9,12 +9,14 @@ ShowController::ShowController()
 
 void ShowController::startShow()
 {
-    if (state == ShowState::IDLE)
+    if (state != ShowState::RUNNING)
     {
         state = ShowState::RUNNING;
         showTick = 0;
+        activeCue = ShowCue::NONE;
     }
 }
+
 
 void ShowController::update()
 {
