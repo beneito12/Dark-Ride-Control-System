@@ -5,6 +5,8 @@
 
 void RideController::update() {
 
+    currentTick++;
+
     canBus.clear(); // Clear old CAN messages before sending new ones
     
     for (VehicleController& vehicle : vehicles) {
@@ -28,7 +30,13 @@ void RideController::update() {
         } else {
             missedHeartbeatCounts[i]++;
             if (missedHeartbeatCounts[i] >= HEARTBEAT_TIMEOUT_TICKS) {
-                communicationFaultActive = true;
+                if (!communicationFaultActive) {
+                     communicationFaultActive = true;
+                communicationFaultVehicleId = vehicles[i].getVehicleId();
+
+                    logEvent("Communication fault detected for vehicle " + std::to_string(vehicles[i].getVehicleId()));
+                }
+
                 vehicles[i].setState(VehicleState::FAULTED);
             }
         }
@@ -86,6 +94,8 @@ RideController::RideController(int vehicleCount)
 
     missedHeartbeatCounts.resize(vehicles.size(), 0);
     communicationFaultActive = false;
+    communicationFaultVehicleId = -1;
+    currentTick = 0;
 }
 
 bool RideController::dispatchVehicle(int vehicleIndex) {
@@ -154,6 +164,8 @@ bool RideController::moveVehicleToNextBlock(int vehicleIndex) {
         canBus.transmit(showTrigger);
 
         showController.startShow();
+
+        logEvent("Vehicle " + std::to_string(vehicle.getVehicleId()) + " entered Show Block - show triggered");
     }
 }
     return granted;
@@ -213,6 +225,7 @@ void RideController::setStationEmergencyStopActive(bool active) {
 
     if (active)
     {
+        logEvent("Emergency stop activated");
         station.clearDispatchRequest();
 
         for (VehicleController& vehicle : vehicles)
@@ -222,6 +235,9 @@ void RideController::setStationEmergencyStopActive(bool active) {
                 vehicle.setState(VehicleState::EMERGENCY_STOP);
             }
         }
+    }
+    else{
+        logEvent("Emergency stop cleared");
     }
 }
 
@@ -234,13 +250,21 @@ void RideController::resetEmergencyStop() {
         return;
     }
 
+    bool resetperformed = false;
+    
     for (VehicleController& vehicle : vehicles)
      {
         if (vehicle.getState() == VehicleState::EMERGENCY_STOP)
          {
             vehicle.setState(VehicleState::MOVING);
+            resetperformed = true;
         }
     }
+    
+    if (resetperformed) {
+        logEvent("Emergency stop reset accepted");
+    }
+
 }
 
 int RideController::getVehicleCurrentBlock(int vehicleIndex) const {
@@ -294,11 +318,20 @@ bool RideController::resetCommunicationFault() {
         }
 
         if (!heartbeatReceived) {
+
+            logEvent("Communication fault reset failed: Vehicle " + std::to_string(vehicle.getVehicleId()) + " heartbeat missing");
             return false;
         }
     }
 
     communicationFaultActive = false;
+
+    communicationFaultVehicleId = -1;
+
+    for (int& count : missedHeartbeatCounts)
+    {
+        count = 0;
+    }
     
     for (VehicleController& vehicle : vehicles)
     {
@@ -314,6 +347,8 @@ bool RideController::resetCommunicationFault() {
             }
         }
     }
+
+    logEvent("Communication fault reset accepted");
     return true;
 }
 
@@ -331,4 +366,27 @@ ShowCue RideController::getActiveShowCue() const {
 
 int RideController::getVehicleCount() const {
     return static_cast<int>(vehicles.size());
+}
+
+int RideController::getCommunicationFaultVehicleId() const {
+    return communicationFaultVehicleId;
+}
+
+int RideController::getMissedHeartbeatCount(int vehicleIndex) const {
+    if (vehicleIndex < 0 || vehicleIndex >= static_cast<int>(missedHeartbeatCounts.size())) {
+        return -1;
+    }
+    return missedHeartbeatCounts[vehicleIndex];
+}
+
+void RideController::logEvent(const std::string& message) {
+    eventLog.push_back("[Tick " + std::to_string(currentTick) + "] " + message);
+}
+
+const std::vector<std::string>& RideController::getEventLog() const {
+    return eventLog;
+}
+
+void RideController::clearEventLog() {
+    eventLog.clear();
 }

@@ -6,6 +6,7 @@
 #include "StationController.h"
 #include "CanBus.h"
 #include "ShowController.h"
+#include <string>
 
 class RideController {
    private:
@@ -22,6 +23,13 @@ class RideController {
     std::vector<int> missedHeartbeatCounts;
     bool communicationFaultActive;
     static constexpr int HEARTBEAT_TIMEOUT_TICKS = 3;
+
+    int communicationFaultVehicleId;
+
+    int currentTick;
+    std::vector<std::string> eventLog;
+
+    void logEvent(const std::string& message);
 
    public:
     RideController(int vehicleCount = 2);
@@ -59,4 +67,10 @@ class RideController {
     ShowCue getActiveShowCue() const;
 
     int getVehicleCount() const;
+
+    int getCommunicationFaultVehicleId() const;
+    int getMissedHeartbeatCount(int vehicleIndex) const;
+
+    const std::vector<std::string>& getEventLog() const;
+    void clearEventLog();
 };

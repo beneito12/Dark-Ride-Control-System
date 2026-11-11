@@ -370,3 +370,51 @@ TEST_CASE("All configured vehicles transmit CAN messages")
     // Each vehicle sends one heartbeat and one status frame.
     REQUIRE(messages.size() == 8);
 }
+
+TEST_CASE("Communication fault identifies affected vehicle")
+{
+    RideController ride(4);
+
+    ride.setVehicleHeartbeatEnabled(1, false);
+
+    ride.update();
+    REQUIRE(ride.getMissedHeartbeatCount(1) == 1);
+
+    ride.update();
+    REQUIRE(ride.getMissedHeartbeatCount(1) == 2);
+
+    ride.update();
+
+    REQUIRE(ride.isCommunicationFaultActive());
+    REQUIRE(ride.getMissedHeartbeatCount(1) == 3);
+    REQUIRE(ride.getCommunicationFaultVehicleId() == 2);
+}
+
+TEST_CASE("RideController records communication fault events")
+{
+    RideController ride(4);
+
+    ride.setVehicleHeartbeatEnabled(1, false);
+
+    ride.update();
+    ride.update();
+    ride.update();
+
+    const auto& events = ride.getEventLog();
+
+    REQUIRE_FALSE(events.empty());
+
+    bool foundCommunicationFault = false;
+
+    for (const std::string& event : events)
+    {
+        if (event.find("Communication fault detected for vehicle 2")
+            != std::string::npos)
+        {
+            foundCommunicationFault = true;
+            break;
+        }
+    }
+
+    REQUIRE(foundCommunicationFault);
+}

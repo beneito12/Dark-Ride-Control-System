@@ -79,10 +79,22 @@ void printDemoStatus(const RideController& ride)
         << '\n';
 }
 
+    if (ride.isCommunicationFaultActive())
+{
+    int faultVehicleId = ride.getCommunicationFaultVehicleId();
+    int faultVehicleIndex = faultVehicleId - 1;
+
     std::cout
-        << "Communication Fault: "
-        << (ride.isCommunicationFaultActive() ? "ACTIVE" : "CLEAR")
+        << "Communication Fault: ACTIVE"
+        << " | Source: Vehicle " << faultVehicleId
+        << " | Missed Heartbeats: "
+        << ride.getMissedHeartbeatCount(faultVehicleIndex)
         << '\n';
+}
+else
+{
+    std::cout << "Communication Fault: CLEAR\n";
+}
 
     std::cout
         << "Show State: "
@@ -164,7 +176,7 @@ int main()
     std::cout << "\n=== PHASE 2: SHOW CONTROL + CAN FAULT ===\n";
 
     std::cout
-        << "\nInjecting communication fault: "
+        << "\nInjecting heartbeat fault: "
         << "Vehicle 2 heartbeat disabled.\n";
 
     ride.setVehicleHeartbeatEnabled(1, false);
@@ -231,6 +243,13 @@ int main()
     std::cout << "\n========================================\n";
     std::cout << " Demonstration Complete\n";
     std::cout << "========================================\n";
+
+    std::cout << "\n=== EVENT LOG ===\n";
+
+   for (const std::string& event : ride.getEventLog())
+      {
+       std::cout << event << '\n';
+      }
 
     return 0;
 }
